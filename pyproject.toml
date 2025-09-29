@@ -4,13 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "atexit-tempfile"
-version = "0.0.1"
+version = "0.0.2"
 description = "Generate Python temporary files with atexit cleanup"
 readme = "README.md"
 requires-python = ">=3.8"
 license = { file = "LICENSE" }
 authors = [
-  { name = "Your Name" }
+  { name = "Michael Brux" }
 ]
 keywords = ["tempfile", "atexit", "temporary", "cleanup"]
 classifiers = [

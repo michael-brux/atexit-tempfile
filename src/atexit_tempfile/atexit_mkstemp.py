@@ -1,5 +1,6 @@
 from tempfile import mkstemp
-from atexit_cleanup import register_tempfile
+#from atexit_cleanup import register_tempfile
+from .atexit_cleanup import register_tempfile
 
 SUFFIX = ".atexit"  # default tempfile suffix
 PREFIX = "atexit_"  # default tempfile prefix
