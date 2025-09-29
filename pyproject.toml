@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "atexit-tempfile"
+version = "0.0.1"
+description = "Generate Python temporary files with atexit cleanup"
+readme = "README.md"
+requires-python = ">=3.8"
+license = { file = "LICENSE" }
+authors = [
+  { name = "Your Name" }
+]
+keywords = ["tempfile", "atexit", "temporary", "cleanup"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Operating System :: OS Independent",
+  "Topic :: Software Development :: Libraries",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/atexit_tempfile"]
+
+[tool.hatch.build.targets.sdist]
+include = [
+  "/src/atexit_tempfile",
+  "/README.md",
+  "/LICENSE",
+]
