@@ -9,30 +9,11 @@ from atexit import register
 from pathlib import Path
 import os
 
-_tempfile = list()
+SILENT = False
+USE_PROC_FILESYSTEM = True
 
-@register
-def _cleanup_tempfiles():
-    """
-    Clean up all registered temporary files and file descriptors.
-
-    This function is registered with `atexit` to be called on program exit.
-    It iterates through a list of registered (fd, path) tuples, closes the
-    file descriptor if it's not None, and removes the file at the given path
-    if it's not None.
-    """
-    for fd, path in _tempfile:
-        if fd is not None:
-            try:
-                os.close(fd)
-            except OSError:
-                pass
-        if path is not None:
-            try:
-                os.remove(path)
-            except OSError:
-                pass
-    _tempfile.clear()
+_fd_set = set()
+_file_set = set()
 
 def _has_proc_filesystem() -> bool:
     """
@@ -44,52 +25,51 @@ def _has_proc_filesystem() -> bool:
     Returns:
         bool: True if /proc/self/fd exists, False otherwise.
     """
-    if os.name != "posix":
+    if USE_PROC_FILESYSTEM:
+        if os.name != "posix":
+            return False
+        return os.path.isdir("/proc/self/fd")
+    else:
         return False
-    return os.path.isdir("/proc/self/fd")
 
-def register_tempfile(fd:int = None, path:Path|str = None, check:bool= True):
-    """
-    Register a temporary file for cleanup at exit.
-
-    At least one of `fd` or `path` must be provided.
-
-    If only `fd` is provided, the function will attempt to determine the path
-    from the file descriptor using the proc filesystem (if available).
-
-    Args:
-        fd (int, optional): The file descriptor of the temporary file. Defaults to None.
-        path (Path | str, optional): The path to the temporary file. Defaults to None.
-        check (bool, optional): If True, raise ValueError for invalid inputs.
-                                Defaults to True.
-
-    Raises:
-        ValueError: If `check` is True and `fd` is invalid, or if both `fd`
-                    and `path` are None.
-    """
-    if fd is not None:
+def register_fd(fd:int, register_file_too:bool = True):
+    try:
+        stat = os.fstat(fd)
+    except OSError:
+        if not SILENT:
+            raise ValueError("Invalid file descriptor")
+    _fd_set.add(fd)
+    if register_file_too and _has_proc_filesystem():
         try:
-            os.fstat(fd)
+            path = os.readlink(f"/proc/self/fd/{fd}")
+            register_file(path)
         except OSError:
-            if check:
-                raise ValueError("Invalid file descriptor")
-            fd = None
-    if fd is None and path is None:
-        if check:
-            raise ValueError("Either fd or path must be provided")
-        return # do nothing
-    if fd is not None and path is None:
-        if _has_proc_filesystem():
-            try:
-                path = os.readlink(f"/proc/self/fd/{fd}")
-            except OSError:
-                pass
-    _tempfile.append((fd, path))
+            if not SILENT:
+                print(f"Warning: Could not resolve path for fd {fd}")
 
-if __name__ == "__main__":
-    import tempfile as tf
-    # Example usage
-    fd, path = tf.mkstemp()
-    print(f"Created temp file: {path} with fd: {fd}")
-    register_tempfile(fd, path)
-    # The temp file will be cleaned up automatically on program exit
+def register_file(path:Path|str):
+    try:
+        stat = os.stat(path)
+    except OSError:
+        if not SILENT:
+            raise ValueError("Invalid file path")
+    _file_set.add(path)
+
+def register_tempfile(fd:int, path:Path|str):
+    register_fd(fd, register_file_too=False)
+    register_file(path)
+
+@register
+def _cleanup_tempfiles():
+    for fd in _fd_set:
+        try:
+            os.close(fd)
+        except OSError:
+            if not SILENT:
+                print(f"Warning: Failed to close fd {fd}")
+    for path in _file_set:
+        try:
+            os.remove(path)
+        except OSError:
+            if not SILENT:
+                print(f"Warning: Failed to remove file {path}")

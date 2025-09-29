@@ -1,5 +1,4 @@
 from tempfile import mkstemp
-#from atexit_cleanup import register_tempfile
 from .atexit_cleanup import register_tempfile
 
 SUFFIX = ".atexit"  # default tempfile suffix
@@ -32,7 +31,19 @@ def atexit_mkstemp(
     register_tempfile(fd, filename)
     return fd, filename
 
-if __name__ == "__main__":
-    # Example usage
-    fd, filename = atexit_mkstemp()
-    print(f"Created temp file: {filename} with fd: {fd}")
+def atexit_write_tempfile(
+        temp_data: bytes|str,
+        suffix: str = SUFFIX,
+        prefix: str = PREFIX,
+        dir: str | None = None,
+        text: bool = True):
+    fd, filename = atexit_mkstemp(suffix=suffix, prefix=prefix, dir=dir)
+    if isinstance(temp_data, str) and text:
+        with open(filename, "w") as f:
+            f.write(temp_data)
+    elif isinstance(temp_data, bytes) and not text:
+        with open(filename, "wb") as f:
+            f.write(temp_data)
+    else:
+        raise ValueError("temp_data must be str if text is True, bytes if text is False")
+    return fd, filename

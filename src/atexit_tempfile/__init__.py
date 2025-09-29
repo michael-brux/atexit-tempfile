@@ -1,5 +1,5 @@
 # Public API re-exports for convenient imports
-from .atexit_cleanup import register_tempfile
 from .atexit_mkstemp import atexit_mkstemp
+from .atexit_mkstemp import atexit_write_tempfile
 
-__all__ = ["register_tempfile", "atexit_mkstemp"]
+__all__ = [ "atexit_mkstemp", "atexit_write_tempfile"]
