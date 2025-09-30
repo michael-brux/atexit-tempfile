@@ -2,10 +2,6 @@
 
 import sys
 from pathlib import Path
-this_dir = Path(__file__).parent
-src_dir = this_dir.parent / "src"
-sys.path.insert(0, str(src_dir))
-
 from atexit_tempfile import atexit_mkstemp, atexit_write_tempfile
 
 def test_mkstemp():
