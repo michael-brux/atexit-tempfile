@@ -23,6 +23,22 @@ _file_list = list()
 _lock = Lock()
 
 
+def safe_remove(path: Path | str) -> None:
+    """
+    Safely remove a file, suppressing any OSError exceptions.
+    
+    This wrapper function is designed to be used with weakref.finalize
+    to prevent exception messages from being printed during cleanup.
+    
+    Args:
+        path: The file path to remove.
+    """
+    try:
+        os.remove(path)
+    except OSError:
+        pass
+
+
 def register_fd(fd: int) -> bool:
     """
     Register a file descriptor for cleanup at exit.
