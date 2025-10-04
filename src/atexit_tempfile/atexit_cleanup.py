@@ -135,7 +135,7 @@ class TempfileCleaner:
         for ref in cls._instances:
             inst = ref()
             if inst is not None:
-                inst.cleanup()
+                inst._on_finalize()
         cls._instances.clear()
 
     @classmethod

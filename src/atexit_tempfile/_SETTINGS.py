@@ -1,0 +1,14 @@
+
+_USE_FINALIZE = True
+_USE_ATEXIT = not _USE_FINALIZE
+
+_USE_CLEANUP_FUNC = True  # !! setting to False does not work reliably !!
+_USE_CLEANUP_METHOD = not _USE_FINALIZE and _USE_CLEANUP_FUNC  # USE_FINALIZE takes precedence
+
+_DETACH_FINALIZER = True
+_DETACH_FINALIZER = _USE_FINALIZE and _DETACH_FINALIZER # USE_FINALIZE needed
+
+_USE_LOGGING = False
+_PRINT_DEBUG_LOG = True
+
+_GENERATE_IDENTIFIER = True
