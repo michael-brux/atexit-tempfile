@@ -144,12 +144,20 @@ class TestCleanupWithDel(unittest.TestCase):
         import re
         from pathlib import Path
 
+        # Get the absolute path to test_example_with_delay.py
+        script_path = Path(__file__).parent / "test_example_with_delay.py"
+
+        # Ensure the script exists
+        assert script_path.exists(), f"Script not found: {script_path}"
+
+        # Run the subprocess while referencing the absolute path
         result = subprocess.run(
-            ["python", "test/test_example_with_delay.py"],
+            ["python", str(script_path)],  # Pass the absolute path
             capture_output=True,
             text=True,
             check=True
         )
+
         # Find all Filepath outputs
         matches = re.findall(r"Filepath: (.+)", result.stdout)
         assert len(matches) == 2, "Expected two Filepath outputs"
